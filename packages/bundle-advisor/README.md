@@ -22,6 +22,34 @@ pnpm add -D bundle-advisor
 bundle-advisor analyze --stats path/to/stats.json
 ```
 
+### Configuration File
+
+You can create a `bundle-advisor.config.json` file in your project root to configure default settings. 
+
+```json
+{
+  "format": "json",
+  "output": "path/to/file.md",
+  "stats": "path/to/stats.json",
+  "rules": {
+    "maxChunkSize": 256000,
+    "maxModuleSize": 256000,
+    "minLazyLoadThreshold": 102400
+  }
+}
+```
+
+**Configuration Options:**
+
+- `reporter`: Report format (`"json"` or `"markdown"`). Defaults to `"markdown"`.
+- `reportsDirectory`: Path to write reports. Will write to console if `undefined`. Defaults to `resolve(process.cwd(), "bundle-advisor-reports")`
+- `statsFile`: Path to the stats file. Defaults to `resolve(process.cwd(), "stats.json")`
+- `rules`: Rule-specific thresholds
+  - `maxChunkSize`: Maximum chunk size in bytes (default: 250KB)
+  - `maxModuleSize`: Maximum module size in bytes (default: 200KB)
+  - `minLazyLoadThreshold`: Minimum size for lazy load candidates in bytes (default: 100KB)
+
+**Note:** CLI arguments take precedence over config file settings.
 
 ### Set the output format
 

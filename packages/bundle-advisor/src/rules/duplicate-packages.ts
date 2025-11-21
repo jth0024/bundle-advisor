@@ -1,12 +1,12 @@
-import type { Analysis, Issue } from '../types.js'
-import { formatBytes, generateIssueId } from './engine.js'
+import type { Issue } from '../types.js'
+import { formatBytes, generateIssueId, type Rule } from './engine.js'
 
 const RULE_ID = 'duplicate-packages'
 
 /**
  * Rule: Detect duplicate packages with different versions
  */
-export function ruleDuplicatePackages(analysis: Analysis): Issue[] {
+export const createDuplicatePackagesRule = (): Rule => analysis => {
   const issues: Issue[] = []
 
   for (const dup of analysis.duplicatePackages) {

@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { RuleEngine, ruleDuplicatePackages, ruleHugeModules } from '../rules/index.js'
+import { createDuplicatePackagesRule, createHugeModulesRule, RuleEngine } from '../rules/index.js'
 import type { Analysis } from '../types.js'
 
 describe('RuleEngine', () => {
   it('should run registered rules', () => {
     const engine = new RuleEngine()
-    engine.register(ruleDuplicatePackages)
-    engine.register(ruleHugeModules)
+    engine.register(createDuplicatePackagesRule())
+    engine.register(createHugeModulesRule())
 
     const analysis: Analysis = {
       totalSize: 100000,
@@ -66,7 +66,7 @@ describe('ruleDuplicatePackages', () => {
       largeModules: [],
     }
 
-    const issues = ruleDuplicatePackages(analysis)
+    const issues = createDuplicatePackagesRule()(analysis)
 
     expect(issues.length).toBe(1)
     expect(issues[0]?.ruleId).toBe('duplicate-packages')

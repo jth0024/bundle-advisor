@@ -4,13 +4,14 @@ import { Command } from 'commander'
 import { RollupPluginBundleStatsAdapter } from '../../adapters/rollup-plugin-bundle-stats.js'
 import { WebpackStatsAdapter } from '../../adapters/webpack-stats.js'
 import { Analyzer } from '../../analyzer/analyzer.js'
+import { loadConfig, mergeConfig } from '../../config.js'
 import { generateJsonReport, generateMarkdownReport } from '../../reports/generators.js'
 import {
+  createDuplicatePackagesRule,
+  createHugeModulesRule,
+  createLargeVendorChunksRule,
+  createLazyLoadCandidatesRule,
   RuleEngine,
-  ruleDuplicatePackages,
-  ruleHugeModules,
-  ruleLargeVendorChunks,
-  ruleLazyLoadCandidates,
 } from '../../rules/index.js'
 import type { RawReport } from '../../types.js'
 
@@ -22,9 +23,21 @@ export const analyzeCommand = new Command('analyze')
   .option('--no-ai', 'Disable AI analysis (rules only)')
   .action(async options => {
     try {
-      const statsPath = resolve(options.stats)
-      const format = options.format as 'json' | 'markdown'
-      const outputPath = options.output ? resolve(options.output) : null
+      // Load config file
+      const fileConfig = loadConfig()
+
+      // Merge config file with CLI options (CLI takes precedence)
+      const config = mergeConfig(fileConfig, {
+        statsFile: options.stats,
+        reporter: options.format,
+        reportsDirectory: options.output,
+      })
+
+      const statsPath = resolve(config.statsFile)
+      const reportFormat = config.reporter
+      const reportPath = config.reportsDirectory
+        ? resolve(config.reportsDirectory, reportFormat === 'json' ? 'report.json' : 'report.md')
+        : null
       const useAI = options.ai !== false
 
       // Read stats file
@@ -46,12 +59,16 @@ export const analyzeCommand = new Command('analyze')
       const analyzer = new Analyzer(adapter)
       const analysis = analyzer.analyze(rawStats)
 
-      // Run rules
+      // Run rules with configuration
       const ruleEngine = new RuleEngine()
-      ruleEngine.register(ruleDuplicatePackages)
-      ruleEngine.register(ruleLargeVendorChunks)
-      ruleEngine.register(ruleHugeModules)
-      ruleEngine.register(ruleLazyLoadCandidates)
+      ruleEngine.register(createDuplicatePackagesRule())
+      ruleEngine.register(createLargeVendorChunksRule({ maxChunkSize: config.rules.maxChunkSize }))
+      ruleEngine.register(createHugeModulesRule({ maxModuleSize: config.rules.maxModuleSize }))
+      ruleEngine.register(
+        createLazyLoadCandidatesRule({
+          minLazyLoadThreshold: config.rules.minLazyLoadThreshold,
+        }),
+      )
 
       const issues = ruleEngine.run(analysis)
 
@@ -67,16 +84,16 @@ export const analyzeCommand = new Command('analyze')
 
       // Generate report
       let output: string
-      if (format === 'json') {
+      if (reportFormat === 'json') {
         output = generateJsonReport(report)
       } else {
         output = generateMarkdownReport(report)
       }
 
       // Write output
-      if (outputPath) {
-        writeFileSync(outputPath, output, 'utf-8')
-        console.error(`Report written to ${outputPath}`)
+      if (reportPath) {
+        writeFileSync(reportPath, output, 'utf-8')
+        console.error(`Report written to ${reportPath}`)
       } else {
         console.log(output)
       }
