@@ -25,7 +25,7 @@ describe('Config', () => {
 
     const merged = mergeConfig(fileConfig, cliConfig)
 
-    expect(merged.reporters).toBe({ markdown: true }) // CLI wins
+    expect(merged.reporters).toEqual({ markdown: true }) // CLI wins
     expect(merged.statsFile).toBe('cli-stats.json') // CLI wins
     expect(merged.outputDir).toBe('file-output') // from file
     expect(merged.rules.maxChunkSize).toBe(256000) // from file
