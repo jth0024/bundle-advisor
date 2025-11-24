@@ -12,6 +12,11 @@
     "VITE_*"
   ],
   "tasks": {
+    "analyze:bundles": {
+      "dependsOn": ["build"],
+      "inputs": ["$TURBO_DEFAULT$", "build/**"],
+      "outputs": ["bundle-reports/**"]
+    },
     // --------------- Build ---------------
     "build": {
       "dependsOn": ["^build"],
