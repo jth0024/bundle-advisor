@@ -1,5 +1,5 @@
-import { formatBytes } from '../rules/engine.js'
 import type { AIEnhancedBundleAnalysis, BundleAnalysis } from '../types.js'
+import { formatBytes } from '../utils/format-bytes.js'
 
 /**
  * Generate a Markdown report

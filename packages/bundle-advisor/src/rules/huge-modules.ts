@@ -1,5 +1,6 @@
 import type { Issue } from '../types.js'
-import { formatBytes, generateIssueId, type Rule } from './engine.js'
+import { formatBytes } from '../utils/format-bytes.js'
+import { generateIssueId, type Rule } from './engine.js'
 
 const RULE_ID = 'huge-modules'
 

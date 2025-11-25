@@ -1,5 +1,6 @@
-import { formatBytes, generateIssueId, type Rule } from '../rules/index.js'
+import { generateIssueId, type Rule } from '../rules/index.js'
 import type { Issue } from '../types.js'
+import { formatBytes } from '../utils/format-bytes.js'
 
 const RULE_ID = 'lazy-load-candidates'
 

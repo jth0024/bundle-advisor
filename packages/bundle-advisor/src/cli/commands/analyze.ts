@@ -129,8 +129,9 @@ export const analyzeCommand = new Command('analyze')
               break
             }
             case 'html': {
+              const content = await generateHtmlReport(analysis)
               reports.push({
-                content: generateHtmlReport(analysis),
+                content,
                 path: resolve(config.outputDir, 'report.html'),
               })
               break
